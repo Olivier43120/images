@@ -24,10 +24,7 @@ jobs:
       - name: Installer lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
 
-      - name: Créer le dossier de destination si besoin
-        run: mkdir -p cours-app/images
-
-      - name: Mirroir le répertoire distant (Free → local)
+      - name: Mirroir le répertoire distant (Free → racine du dépôt)
         env:
           FTP_HOST: ${{ secrets.mathsacamus }}
           FTP_USER: ${{ secrets.mathsacamus }}
@@ -35,7 +32,7 @@ jobs:
         run: |
           lftp -u "$FTP_USER,$FTP_PASS" "$FTP_HOST" <<'EOF'
           set ftp:ssl-allow no
-          mirror --verbose --delete /cours-app/images cours-app/images
+          mirror --verbose --delete /cours-app/images .
           quit
           EOF
 
@@ -43,7 +40,8 @@ jobs:
         run: |
           git config user.name "sync-bot"
           git config user.email "sync-bot@users.noreply.github.com"
-          git add -A -- cours-app/images
+          # On exclut .github pour ne jamais committer d'éventuel résidu lié au workflow lui-même
+          git add -A -- . ':!.github'
           if git diff --cached --quiet; then
             echo "Aucun changement détecté, rien à committer."
           else
