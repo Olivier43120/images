@@ -32,15 +32,21 @@ jobs:
         run: |
           lftp -u "$FTP_USER,$FTP_PASS" "$FTP_HOST" <<'EOF'
           set ftp:ssl-allow no
-          mirror --verbose --delete /cours-app/images .
+          mirror --verbose --delete --exclude-glob .git/ --exclude-glob .github/ /cours-app/images .
           quit
           EOF
+
+      - name: Vérifier que .git est toujours présent (sécurité)
+        run: |
+          if [ ! -d .git ]; then
+            echo "::error::Le dossier .git a disparu après le mirroring — arrêt pour éviter tout dégât."
+            exit 1
+          fi
 
       - name: Commit et push si changements
         run: |
           git config user.name "sync-bot"
           git config user.email "sync-bot@users.noreply.github.com"
-          # On exclut .github pour ne jamais committer d'éventuel résidu lié au workflow lui-même
           git add -A -- . ':!.github'
           if git diff --cached --quiet; then
             echo "Aucun changement détecté, rien à committer."
