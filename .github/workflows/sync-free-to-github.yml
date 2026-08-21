@@ -26,9 +26,9 @@ jobs:
 
       - name: Mirroir le répertoire distant (Free → racine du dépôt)
         env:
-          FTP_HOST: ${{ secrets.mathsacamus }}
-          FTP_USER: ${{ secrets.mathsacamus }}
-          FTP_PASS: ${{ secrets.cAmus42* }}
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
           lftp -u "$FTP_USER,$FTP_PASS" "$FTP_HOST" <<'EOF'
           set ftp:ssl-allow no
