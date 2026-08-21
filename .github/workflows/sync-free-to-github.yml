@@ -1,0 +1,52 @@
+name: Sync Free (FTP) → GitHub
+
+on:
+  schedule:
+    # Toutes les heures, à la minute 0
+    - cron: '0 * * * *'
+  workflow_dispatch: {}
+    # ↑ permet aussi de lancer la synchro manuellement depuis l'onglet "Actions" de GitHub
+
+# Empêche deux synchros de tourner en même temps si l'une prend plus d'une heure
+concurrency:
+  group: sync-free-to-github
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Installer lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Créer le dossier de destination si besoin
+        run: mkdir -p cours-app/images
+
+      - name: Mirroir le répertoire distant (Free → local)
+        env:
+          FTP_HOST: ${{ secrets.mathsacamus }}
+          FTP_USER: ${{ secrets.mathsacamus }}
+          FTP_PASS: ${{ secrets.cAmus42* }}
+        run: |
+          lftp -u "$FTP_USER,$FTP_PASS" "$FTP_HOST" <<'EOF'
+          set ftp:ssl-allow no
+          mirror --verbose --delete /cours-app/images cours-app/images
+          quit
+          EOF
+
+      - name: Commit et push si changements
+        run: |
+          git config user.name "sync-bot"
+          git config user.email "sync-bot@users.noreply.github.com"
+          git add -A -- cours-app/images
+          if git diff --cached --quiet; then
+            echo "Aucun changement détecté, rien à committer."
+          else
+            git commit -m "Sync auto depuis Free ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+            git push
+          fi
