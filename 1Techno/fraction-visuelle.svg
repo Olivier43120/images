@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 60" width="240" height="90">
+  <rect x="5" y="10" width="30" height="40" fill="#CC0000" rx="2"/>
+  <rect x="40" y="10" width="30" height="40" fill="#CC0000" rx="2"/>
+  <rect x="75" y="10" width="30" height="40" fill="#eee" stroke="#999" stroke-width="1" rx="2"/>
+  <rect x="110" y="10" width="30" height="40" fill="#eee" stroke="#999" stroke-width="1" rx="2"/>
+  <text x="80" y="5" font-size="9" fill="#555" font-family="Helvetica">2/4 = 1/2</text>
+</svg>
